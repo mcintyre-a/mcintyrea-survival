@@ -1,38 +1,23 @@
 namespace SpriteKind {
     export const OT_Food = SpriteKind.create()
 }
-function overtimeBonus_points () {
-    inProgress = 0
-    Player1.setVelocity(70, 70)
-    Player1.setPosition(80, 58)
-    OT_projectile.setKind(SpriteKind.OT_Food)
-    for (let index = 0; index < 4; index++) {
-        OT_projectile = sprites.createProjectileFromSide(img`
-. . . . . . . . . . . . . . . . 
-. . . . . . 6 6 6 6 . . . . . . 
-. . . . 6 6 6 5 5 6 6 6 . . . . 
-. . . 7 7 7 7 6 6 6 6 6 6 . . . 
-. . 6 7 7 7 7 8 8 8 1 1 6 6 . . 
-. . 7 7 7 7 7 8 8 8 1 1 5 6 . . 
-. 6 7 7 7 7 8 8 8 8 8 5 5 6 6 . 
-. 6 7 7 7 8 8 8 6 6 6 6 5 6 6 . 
-. 6 6 7 7 8 8 6 6 6 6 6 6 6 6 . 
-. 6 8 7 7 8 8 6 6 6 6 6 6 6 6 . 
-. . 6 8 7 7 8 6 6 6 6 6 8 6 . . 
-. . 6 8 8 7 8 8 6 6 6 8 6 6 . . 
-. . . 6 8 8 8 8 8 8 8 8 6 . . . 
-. . . . 6 6 8 8 8 8 6 6 . . . . 
-. . . . . . 6 6 6 6 . . . . . . 
-. . . . . . . . . . . . . . . . 
-`, 68, 70)
-        pause(500)
-    }
+function makeFood () {
+    foodProjectile.setKind(SpriteKind.Food)
+    foodProjectile = sprites.createProjectileFromSide(img`
+. . 6 6 6 6 . . 
+. 6 d 4 4 4 6 . 
+6 d 4 4 4 4 d 6 
+c 1 b 4 4 4 d c 
+. c b 1 1 4 c . 
+. . c c c c . . 
+`, Math.randomRange(0, 100), Math.randomRange(0, 100))
 }
 function Overtime () {
-    pause(59000)
+    pause(59500)
     if (1 <= info.life()) {
         info.stopCountdown()
         game.splash("Overtime!!!")
+        game.showLongText("YOU SUCCESSFULLY BEAT THE GAME - HOW MANY EXTRA POINTS CAN YOU GET? YOUR CONTROLS HAVE BEEN SPED UP - IF YOU CAN STILL CATCH THE NEW PROJECTILES THEY ARE WORTH AN EXTRA 5 POINTS EACH!", DialogLayout.Center)
         info.startCountdown(5)
         overtimeBonus_points()
     } else {
@@ -75,6 +60,33 @@ function WELCOME () {
     game.splash("READY?")
     music.playMelody("F - F - F - C5 C5 ", 120)
 }
+function overtimeBonus_points () {
+    inProgress = 0
+    Player1.setVelocity(70, 70)
+    Player1.setPosition(80, 58)
+    OT_projectile.setKind(SpriteKind.OT_Food)
+    for (let index = 0; index < 4; index++) {
+        OT_projectile = sprites.createProjectileFromSide(img`
+. . . . . . . . . . . . . . . . 
+. . . . . . 6 6 6 6 . . . . . . 
+. . . . 6 6 6 5 5 6 6 6 . . . . 
+. . . 7 7 7 7 6 6 6 6 6 6 . . . 
+. . 6 7 7 7 7 8 8 8 1 1 6 6 . . 
+. . 7 7 7 7 7 8 8 8 1 1 5 6 . . 
+. 6 7 7 7 7 8 8 8 8 8 5 5 6 6 . 
+. 6 7 7 7 8 8 8 6 6 6 6 5 6 6 . 
+. 6 6 7 7 8 8 6 6 6 6 6 6 6 6 . 
+. 6 8 7 7 8 8 6 6 6 6 6 6 6 6 . 
+. . 6 8 7 7 8 6 6 6 6 6 8 6 . . 
+. . 6 8 8 7 8 8 6 6 6 8 6 6 . . 
+. . . 6 8 8 8 8 8 8 8 8 6 . . . 
+. . . . 6 6 8 8 8 8 6 6 . . . . 
+. . . . . . 6 6 6 6 . . . . . . 
+. . . . . . . . . . . . . . . . 
+`, 68, 70)
+        pause(500)
+    }
+}
 info.onLifeZero(function () {
     Player1.destroy()
     game.over(false)
@@ -89,9 +101,10 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.OT_Food, function (sprite, other
     info.changeScoreBy(5)
     OT_projectile.destroy()
 })
-let BoostEval = 0
 let OT_projectile: Sprite = null
 let Player1: Sprite = null
+let foodProjectile: Sprite = null
+let BoostEval = 0
 let inProgress = 0
 _INIT()
 WELCOME()
@@ -99,3 +112,8 @@ character_Player1()
 info.startCountdown(60)
 inProgress = 1
 gameProgressions()
+Overtime()
+while (BoostEval == 0 && info.life() > 0) {
+    makeFood()
+}
+pause(5000)
