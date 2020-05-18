@@ -2,9 +2,6 @@ namespace SpriteKind {
     export const OT_Food = SpriteKind.create()
     export const NEW_PROJECTILE = SpriteKind.create()
 }
-function makeFood () {
-	
-}
 function character_Player1 () {
     Player1 = sprites.create(img`
 . . . . . . f f f f . . . . . . 
@@ -28,11 +25,6 @@ function character_Player1 () {
     controller.moveSprite(Player1, 100, 0)
     Player1.setFlag(SpriteFlag.StayInScreen, true)
 }
-function foodLoop () {
-    while (BoostEval == 0 && info.life() > 0) {
-    	
-    }
-}
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
     Boost()
 })
@@ -49,33 +41,6 @@ function reviveLife () {
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     reviveLife()
 })
-function overtimeBonus_points () {
-    inProgress = 0
-    Player1.setVelocity(70, 70)
-    Player1.setPosition(80, 58)
-    OT_projectile.setKind(SpriteKind.OT_Food)
-    for (let index = 0; index < 4; index++) {
-        OT_projectile = sprites.createProjectileFromSide(img`
-. . . . . . . . . . . . . . . . 
-. . . . . . 6 6 6 6 . . . . . . 
-. . . . 6 6 6 5 5 6 6 6 . . . . 
-. . . 7 7 7 7 6 6 6 6 6 6 . . . 
-. . 6 7 7 7 7 8 8 8 1 1 6 6 . . 
-. . 7 7 7 7 7 8 8 8 1 1 5 6 . . 
-. 6 7 7 7 7 8 8 8 8 8 5 5 6 6 . 
-. 6 7 7 7 8 8 8 6 6 6 6 5 6 6 . 
-. 6 6 7 7 8 8 6 6 6 6 6 6 6 6 . 
-. 6 8 7 7 8 8 6 6 6 6 6 6 6 6 . 
-. . 6 8 7 7 8 6 6 6 6 6 8 6 . . 
-. . 6 8 8 7 8 8 6 6 6 8 6 6 . . 
-. . . 6 8 8 8 8 8 8 8 8 6 . . . 
-. . . . 6 6 8 8 8 8 6 6 . . . . 
-. . . . . . 6 6 6 6 . . . . . . 
-. . . . . . . . . . . . . . . . 
-`, 68, 70)
-        pause(500)
-    }
-}
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
     otherSprite.destroy()
     if (invincibleEval == 1) {
@@ -93,34 +58,22 @@ function WELCOME () {
     game.splash("READY?")
     music.playMelody("F - F - F - C5 C5 ", 120)
 }
-function makeProjectile () {
-	
-}
 info.onCountdownEnd(function () {
     if (1 <= info.life()) {
-        info.stopCountdown()
-        game.splash("Overtime!!!")
-        game.showLongText("YOU SUCCESSFULLY BEAT THE GAME - HOW MANY EXTRA POINTS CAN YOU GET? YOUR CONTROLS HAVE BEEN SPED UP - IF YOU CAN STILL CATCH THE NEW PROJECTILES THEY ARE WORTH AN EXTRA 5 POINTS EACH!", DialogLayout.Center)
-        info.startCountdown(5)
-        overtimeBonus_points()
+        game.over(true)
     } else {
         game.over(false)
     }
 })
-function projectileLoop () {
-    makeProjectile()
-    while (inProgress == 1) {
-    	
-    }
-}
 function _INIT () {
     info.setScore(5)
-    info.setLife(3)
+    info.setLife(10)
     BoostEval = 0
     inProgress = 0
     invincibleEval = 0
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.OT_Food, function (sprite, otherSprite) {
+    let OT_projectile: Sprite = null
     info.changeScoreBy(5)
     OT_projectile.destroy()
 })
@@ -129,7 +82,7 @@ function Boost () {
     invincibleEval = 1
     effects.starField.startScreenEffect()
     Player1.startEffect(effects.rings)
-    music.playMelody("C5 G C5 F C5 G C5 F ", 300)
+    music.powerUp.loop()
     scene.cameraShake(4, 500)
     pause(5000)
     music.stopAllSounds()
@@ -140,9 +93,8 @@ function Boost () {
 }
 let foodProjectile: Sprite = null
 let PhysicalProjectile: Sprite = null
-let invincibleEval = 0
-let OT_projectile: Sprite = null
 let BoostEval = 0
+let invincibleEval = 0
 let Player1: Sprite = null
 let inProgress = 0
 _INIT()
