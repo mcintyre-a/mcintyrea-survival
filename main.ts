@@ -12,6 +12,18 @@ c 1 b 4 4 4 d c
 . . c c c c . . 
 `, Math.randomRange(0, 100), Math.randomRange(0, 100))
 }
+function Boost () {
+    BoostEval = 1
+    invincibleEval = 1
+    effects.starField.startScreenEffect()
+    scene.cameraShake(4, 500)
+}
+function reviveLife () {
+    if (info.score() < 5) {
+        info.changeLifeBy(1)
+        info.changeScoreBy(-5)
+    }
+}
 function Overtime () {
     pause(59500)
     if (1 <= info.life()) {
@@ -51,10 +63,16 @@ function gameProgressions () {
     pause(30000)
     Player1.y += -35
 }
+controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
+    Boost()
+})
+controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
+    reviveLife()
+})
 function WELCOME () {
     scene.setBackgroundColor(8)
     game.splash("WELCOME", "USE ARROW KEYS/JOYSTICK TO MOVE CHARACTER")
-    game.splash("USE A TO REVIVE IF YOU HAVE 5 FOOD PIECES", "USE B TO BOOST")
+    game.splash("USE A TO REVIVE A LIFE IF YOU HAVE 5 FOOD PIECES", "USE B TO BOOST")
     game.splash("CAN YOU STAY ALIVE FOR 60 SECONDS?")
     game.showLongText("YOUR SCORE CAN BE INCREASED BY COLLECTING FOOD - BUT BEWARE! IF YOU NEED A BOOST YOU USE UP 5 FOOD PIECES, AND IF YOU REVIVE YOURSELF, YOU USE 50% OF YOUR TOTAL!", DialogLayout.Center)
     game.splash("READY?")
@@ -87,6 +105,9 @@ function overtimeBonus_points () {
         pause(500)
     }
 }
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Player, function (sprite, otherSprite) {
+	
+})
 info.onLifeZero(function () {
     Player1.destroy()
     game.over(false)
@@ -96,6 +117,7 @@ function _INIT () {
     info.setLife(3)
     BoostEval = 0
     inProgress = 0
+    invincibleEval = 0
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.OT_Food, function (sprite, otherSprite) {
     info.changeScoreBy(5)
@@ -103,6 +125,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.OT_Food, function (sprite, other
 })
 let OT_projectile: Sprite = null
 let Player1: Sprite = null
+let invincibleEval = 0
 let foodProjectile: Sprite = null
 let BoostEval = 0
 let inProgress = 0
@@ -115,5 +138,5 @@ gameProgressions()
 Overtime()
 while (BoostEval == 0 && info.life() > 0) {
     makeFood()
+    pause(5000)
 }
-pause(5000)
