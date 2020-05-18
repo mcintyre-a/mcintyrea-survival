@@ -12,17 +12,8 @@ c 1 b 4 4 4 d c
 . . c c c c . . 
 `, Math.randomRange(0, 100), Math.randomRange(0, 100))
 }
-function Boost () {
-    BoostEval = 1
-    invincibleEval = 1
-    effects.starField.startScreenEffect()
-    scene.cameraShake(4, 500)
-}
-function reviveLife () {
-    if (info.score() < 5) {
-        info.changeLifeBy(1)
-        info.changeScoreBy(-5)
-    }
+function makeProjectile () {
+	
 }
 function Overtime () {
     pause(59500)
@@ -66,6 +57,19 @@ function gameProgressions () {
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
     Boost()
 })
+function reviveLife () {
+    if (info.score() < 5) {
+        info.changeLifeBy(1)
+        info.changeScoreBy(-5)
+    }
+}
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Projectile, function (sprite, otherSprite) {
+    if (invincibleEval == 1) {
+        info.changeScoreBy(2)
+    } else {
+        info.changeLifeBy(-1)
+    }
+})
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     reviveLife()
 })
@@ -105,9 +109,6 @@ function overtimeBonus_points () {
         pause(500)
     }
 }
-sprites.onOverlap(SpriteKind.Player, SpriteKind.Player, function (sprite, otherSprite) {
-	
-})
 info.onLifeZero(function () {
     Player1.destroy()
     game.over(false)
@@ -123,9 +124,19 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.OT_Food, function (sprite, other
     info.changeScoreBy(5)
     OT_projectile.destroy()
 })
+function Boost () {
+    BoostEval = 1
+    invincibleEval = 1
+    effects.starField.startScreenEffect()
+    Player1.startEffect(effects.rings)
+    scene.cameraShake(4, 500)
+    pause(5000)
+    BoostEval = 0
+    invincibleEval = 0
+}
 let OT_projectile: Sprite = null
-let Player1: Sprite = null
 let invincibleEval = 0
+let Player1: Sprite = null
 let foodProjectile: Sprite = null
 let BoostEval = 0
 let inProgress = 0
@@ -139,4 +150,7 @@ Overtime()
 while (BoostEval == 0 && info.life() > 0) {
     makeFood()
     pause(5000)
+}
+while (true) {
+	
 }
