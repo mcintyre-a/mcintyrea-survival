@@ -1,27 +1,9 @@
 namespace SpriteKind {
     export const OT_Food = SpriteKind.create()
+    export const NEW_PROJECTILE = SpriteKind.create()
 }
 function makeFood () {
-    foodProjectile.setKind(SpriteKind.Food)
-    foodProjectile = sprites.createProjectileFromSide(img`
-. . 6 6 6 6 . . 
-. 6 d 4 4 4 6 . 
-6 d 4 4 4 4 d 6 
-c 1 b 4 4 4 d c 
-. c b 1 1 4 c . 
-. . c c c c . . 
-`, Math.randomRange(1, 100), Math.randomRange(1, 100))
-    pause(500)
-}
-function projectileLoop () {
-    while (inProgress == 1) {
-        makeProjectile()
-    }
-}
-function foodLoop () {
-    while (BoostEval == 0 && info.life() > 0) {
-    	
-    }
+	
 }
 function character_Player1 () {
     Player1 = sprites.create(img`
@@ -46,8 +28,17 @@ function character_Player1 () {
     controller.moveSprite(Player1, 100, 0)
     Player1.setFlag(SpriteFlag.StayInScreen, true)
 }
+function foodLoop () {
+    while (BoostEval == 0 && info.life() > 0) {
+    	
+    }
+}
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
     Boost()
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
+    otherSprite.destroy()
+    info.changeScoreBy(2)
 })
 function reviveLife () {
     if (info.score() < 5) {
@@ -55,48 +46,9 @@ function reviveLife () {
         info.changeScoreBy(-5)
     }
 }
-sprites.onOverlap(SpriteKind.Player, SpriteKind.Projectile, function (sprite, otherSprite) {
-    if (invincibleEval == 1) {
-        Projectile.destroy()
-        info.changeScoreBy(2)
-    } else {
-        Projectile.destroy()
-        info.changeLifeBy(-1)
-    }
-})
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     reviveLife()
 })
-function WELCOME () {
-    scene.setBackgroundColor(8)
-    game.splash("WELCOME", "USE ARROW KEYS/JOYSTICK TO MOVE CHARACTER")
-    game.splash("USE A TO REVIVE A LIFE IF YOU HAVE 5 FOOD PIECES", "USE B TO BOOST")
-    game.splash("CAN YOU STAY ALIVE FOR 60 SECONDS?")
-    game.showLongText("YOUR SCORE CAN BE INCREASED BY COLLECTING FOOD - BUT BEWARE! IF YOU NEED A BOOST YOU USE UP 5 FOOD PIECES, AND IF YOU REVIVE YOURSELF, YOU USE 50% OF YOUR TOTAL!", DialogLayout.Center)
-    game.splash("READY?")
-    music.playMelody("F - F - F - C5 C5 ", 120)
-}
-function makeProjectile () {
-    Projectile = sprites.createProjectileFromSide(img`
-. . . . . . . . . . . f f f f f f f . . . c c f f f . . . . . . . . . . 
-. . . . . . . . . . f b b b b b b b f f c b b b b f . . . . . . . . . . 
-. . . . . . . . . . f b b 1 1 1 b b b b b f f b f . . . . . . . . . . . 
-. . . . . . . . . . f b 1 1 1 1 1 f f b b b b f f . . . . . . . . . . . 
-. . . . . . . . . . f 1 c c c c 1 f f b b b b b c f f . . . . . . . . . 
-. . . . . . . . . . f f c 1 c 1 c 1 b b c b c b c c c f . . . . . . . . 
-. . . . . . . . . . . f c c 3 3 3 1 b b b c b c b c c c f . . c c c c c 
-. . . . . . . . . . . . c 3 3 3 c 1 b b b c b c b c c c c f c d d b b c 
-. . . . . . . . . . . . c 3 3 3 c 1 b b b b b b b c c c c c d d b c c . 
-. . . . . . . . . . . . c 3 3 3 c 1 1 b b b b b c c c c c c b b c c . . 
-. . . . . . . . . . . c c 3 3 1 c 1 1 b b b b c c c c c c f b c c f . . 
-. . . . . . . . . . . c c 1 3 c 1 1 c b b b c c c c c b b c f c c f . . 
-. . . . . . . . . . . c 1 1 1 1 1 1 c b b b f d d d d d c . f b b c f . 
-. . . . . . . . . . . . c c 1 1 1 1 f b d b b f d d d c . . . f b b f . 
-. . . . . . . . . . . . . . c c c f f f b d b b f c c . . . . . f b b f 
-. . . . . . . . . . . . . . . . . . . . f f f f f . . . . . . . . f f f 
-`, Math.randomRange(0, 100), Math.randomRange(0, 100))
-    pause(1000)
-}
 function overtimeBonus_points () {
     inProgress = 0
     Player1.setVelocity(70, 70)
@@ -124,6 +76,26 @@ function overtimeBonus_points () {
         pause(500)
     }
 }
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
+    otherSprite.destroy()
+    if (invincibleEval == 1) {
+        info.changeScoreBy(2)
+    } else {
+        info.changeLifeBy(-1)
+    }
+})
+function WELCOME () {
+    scene.setBackgroundColor(8)
+    game.splash("WELCOME", "USE ARROW KEYS/JOYSTICK TO MOVE CHARACTER")
+    game.splash("USE A TO REVIVE A LIFE IF YOU HAVE 5 FOOD PIECES", "USE B TO BOOST")
+    game.splash("CAN YOU STAY ALIVE FOR 60 SECONDS?")
+    game.showLongText("YOUR SCORE CAN BE INCREASED BY COLLECTING FOOD - BUT BEWARE! IF YOU NEED A BOOST YOU USE UP 5 FOOD PIECES, AND IF YOU REVIVE YOURSELF, YOU USE 50% OF YOUR TOTAL!", DialogLayout.Center)
+    game.splash("READY?")
+    music.playMelody("F - F - F - C5 C5 ", 120)
+}
+function makeProjectile () {
+	
+}
 info.onCountdownEnd(function () {
     if (1 <= info.life()) {
         info.stopCountdown()
@@ -135,10 +107,12 @@ info.onCountdownEnd(function () {
         game.over(false)
     }
 })
-info.onLifeZero(function () {
-    Player1.destroy()
-    game.over(false)
-})
+function projectileLoop () {
+    makeProjectile()
+    while (inProgress == 1) {
+    	
+    }
+}
 function _INIT () {
     info.setScore(5)
     info.setLife(3)
@@ -164,16 +138,53 @@ function Boost () {
     BoostEval = 0
     invincibleEval = 0
 }
-let OT_projectile: Sprite = null
-let Projectile: Sprite = null
-let invincibleEval = 0
-let Player1: Sprite = null
-let BoostEval = 0
 let foodProjectile: Sprite = null
+let PhysicalProjectile: Sprite = null
+let invincibleEval = 0
+let OT_projectile: Sprite = null
+let BoostEval = 0
+let Player1: Sprite = null
 let inProgress = 0
 _INIT()
 WELCOME()
 character_Player1()
 info.startCountdown(60)
 inProgress = 1
-projectileLoop()
+game.onUpdateInterval(1000, function () {
+    PhysicalProjectile = sprites.createProjectileFromSide(img`
+. . . . . . . . . . . . . . . b b b b b b b b b b b b b b b b b b b . . . . . . . . . . . . . . . 
+. . . . . . . . . . . b b b b d d 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 d d b b b b . . . . . . . . . . . 
+. . . . . . . . b b b d 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 d b b b . . . . . . . . 
+. . . . . . b b d 1 1 1 1 1 1 1 1 d d d d d d d d d d d d d d 1 1 1 1 1 1 1 1 1 d b b . . . . . . 
+. . . . b b d 1 1 1 1 1 1 1 d d d 1 1 1 1 1 1 1 1 1 1 1 1 1 1 d d d d 1 1 1 1 1 1 1 d b b . . . . 
+. . . b d 1 1 1 1 1 1 d d d 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 d d d 1 1 1 1 1 1 d b . . . 
+. . b d 1 1 1 1 1 d d d 1 1 1 d d d d d d d d d d d d d d d d d d d 1 1 1 d d d 1 1 1 1 1 d b . . 
+. b d 1 1 1 1 1 d d 1 1 1 d d d d 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 d d d d 1 1 1 d d 1 1 1 1 1 d b . 
+. b 1 1 1 1 1 d 1 1 1 d d d 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 d d d 1 1 1 d 1 1 1 1 1 b . 
+b d 1 1 1 1 1 d 1 d d d 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 d d d 1 1 1 1 1 1 1 d b 
+b 1 1 1 1 1 d 1 d d d 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 d d d 1 d 1 1 1 1 1 b 
+b 1 1 1 1 1 d d d d d 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 d d d d d 1 1 1 1 1 b 
+b 1 1 1 1 1 d d d d d 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 d d d b d 1 1 1 1 1 b 
+b 1 1 1 1 1 1 d d d d 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 d d d b 1 1 1 1 1 1 b 
+b d 1 1 1 1 1 1 d d d d 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 d d d b d 1 1 1 1 1 d b 
+. b 1 1 1 1 1 1 1 d d d d 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 d d d b d 1 1 1 1 1 1 b . 
+. b d 1 1 1 1 1 1 1 d b b d d 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 d d d b b d 1 1 1 1 1 1 d b . 
+. . b d 1 1 1 1 1 1 1 1 d b b d d 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 d d d b b d 1 1 1 1 1 1 1 d b . . 
+. . . b d 1 1 1 1 1 1 1 1 1 d b b b b b b d d d d d d d d d d d d d d 1 1 1 1 1 1 1 1 1 d b . . . 
+. . . . b b d 1 1 1 1 1 1 1 1 1 1 1 d b b b b b b b b b d d d 1 1 1 1 1 1 1 1 1 1 1 d b b . . . . 
+. . . . . . b b d d 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 d d b b . . . . . . 
+. . . . . . . . b b b d d 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 d d b b b . . . . . . . . 
+. . . . . . . . . . . b b b b b d d d 1 1 1 1 1 1 1 1 1 1 1 d d d b b b b b . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . b b b b b b b b b b b b b b b b b . . . . . . . . . . . . . . . . 
+`, Math.randomRange(1, 100), Math.randomRange(1, 100))
+    foodProjectile = sprites.createProjectileFromSide(img`
+. . 6 6 6 6 . . 
+. 6 d 4 4 4 6 . 
+6 d 4 4 4 4 d 6 
+c 1 b 4 4 4 d c 
+. c b 1 1 4 c . 
+. . c c c c . . 
+`, Math.randomRange(1, 100), Math.randomRange(1, 100))
+    PhysicalProjectile.setKind(SpriteKind.Enemy)
+    foodProjectile.setKind(SpriteKind.Food)
+})
