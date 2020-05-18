@@ -10,18 +10,17 @@ function makeFood () {
 c 1 b 4 4 4 d c 
 . c b 1 1 4 c . 
 . . c c c c . . 
-`, Math.randomRange(0, 100), Math.randomRange(0, 100))
+`, Math.randomRange(1, 100), Math.randomRange(1, 100))
+    pause(500)
 }
-function Overtime () {
-    pause(59500)
-    if (1 <= info.life()) {
-        info.stopCountdown()
-        game.splash("Overtime!!!")
-        game.showLongText("YOU SUCCESSFULLY BEAT THE GAME - HOW MANY EXTRA POINTS CAN YOU GET? YOUR CONTROLS HAVE BEEN SPED UP - IF YOU CAN STILL CATCH THE NEW PROJECTILES THEY ARE WORTH AN EXTRA 5 POINTS EACH!", DialogLayout.Center)
-        info.startCountdown(5)
-        overtimeBonus_points()
-    } else {
-        game.over(false)
+function projectileLoop () {
+    while (inProgress == 1) {
+        makeProjectile()
+    }
+}
+function foodLoop () {
+    while (BoostEval == 0 && info.life() > 0) {
+    	
     }
 }
 function character_Player1 () {
@@ -47,10 +46,6 @@ function character_Player1 () {
     controller.moveSprite(Player1, 100, 0)
     Player1.setFlag(SpriteFlag.StayInScreen, true)
 }
-function gameProgressions () {
-    pause(30000)
-    Player1.y += -35
-}
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
     Boost()
 })
@@ -62,8 +57,10 @@ function reviveLife () {
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Projectile, function (sprite, otherSprite) {
     if (invincibleEval == 1) {
+        Projectile.destroy()
         info.changeScoreBy(2)
     } else {
+        Projectile.destroy()
         info.changeLifeBy(-1)
     }
 })
@@ -80,8 +77,7 @@ function WELCOME () {
     music.playMelody("F - F - F - C5 C5 ", 120)
 }
 function makeProjectile () {
-    while (inProgress == 1) {
-        Projectile = sprites.createProjectileFromSide(img`
+    Projectile = sprites.createProjectileFromSide(img`
 . . . . . . . . . . . f f f f f f f . . . c c f f f . . . . . . . . . . 
 . . . . . . . . . . f b b b b b b b f f c b b b b f . . . . . . . . . . 
 . . . . . . . . . . f b b 1 1 1 b b b b b f f b f . . . . . . . . . . . 
@@ -99,7 +95,7 @@ function makeProjectile () {
 . . . . . . . . . . . . . . c c c f f f b d b b f c c . . . . . f b b f 
 . . . . . . . . . . . . . . . . . . . . f f f f f . . . . . . . . f f f 
 `, Math.randomRange(0, 100), Math.randomRange(0, 100))
-    }
+    pause(1000)
 }
 function overtimeBonus_points () {
     inProgress = 0
@@ -128,6 +124,17 @@ function overtimeBonus_points () {
         pause(500)
     }
 }
+info.onCountdownEnd(function () {
+    if (1 <= info.life()) {
+        info.stopCountdown()
+        game.splash("Overtime!!!")
+        game.showLongText("YOU SUCCESSFULLY BEAT THE GAME - HOW MANY EXTRA POINTS CAN YOU GET? YOUR CONTROLS HAVE BEEN SPED UP - IF YOU CAN STILL CATCH THE NEW PROJECTILES THEY ARE WORTH AN EXTRA 5 POINTS EACH!", DialogLayout.Center)
+        info.startCountdown(5)
+        overtimeBonus_points()
+    } else {
+        game.over(false)
+    }
+})
 info.onLifeZero(function () {
     Player1.destroy()
     game.over(false)
@@ -161,21 +168,12 @@ let OT_projectile: Sprite = null
 let Projectile: Sprite = null
 let invincibleEval = 0
 let Player1: Sprite = null
-let foodProjectile: Sprite = null
 let BoostEval = 0
+let foodProjectile: Sprite = null
 let inProgress = 0
 _INIT()
 WELCOME()
 character_Player1()
 info.startCountdown(60)
 inProgress = 1
-gameProgressions()
-Overtime()
-while (BoostEval == 0 && info.life() > 0) {
-    makeFood()
-    pause(5000)
-}
-while (true) {
-    makeProjectile()
-    pause(500)
-}
+projectileLoop()
